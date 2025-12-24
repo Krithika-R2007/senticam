@@ -1132,7 +1132,6 @@
     if (window.incidentTriggered) return;
     window.incidentTriggered = true; // global flag used by simulateAnalysis
 
-    // 1) Show top banner (your existing css 'show' class will handle animation)
     const banner = document.querySelector(ALERT_BANNER_SELECTOR);
     if (banner) {
       try {
@@ -1140,11 +1139,9 @@
         banner.querySelector('p').textContent = 'Screaming and aggressive behavior identified';
       } catch (e) {}
       banner.classList.add('show');
-      // hide after 7s to match previous behavior
       setTimeout(() => banner.classList.remove('show'), 7000);
     }
 
-    // 2) Update dashboard analysis UI elements (non-destructive)
     const threatEl = document.querySelector(THREAT_LEVEL_SELECTOR);
     const confEl = document.querySelector(CONFIDENCE_SELECTOR);
     const statusEl = document.querySelector(ANALYSIS_STATUS_SELECTOR);
@@ -1152,12 +1149,10 @@
     if (confEl)  confEl.textContent = '95%';
     if (statusEl) statusEl.textContent = 'Screaming detected (95%)';
 
-    // 3) Insert a special incident panel into the alerts sidebar (keeps your .alert-item style)
     const alertList = document.querySelector(ALERT_LIST_SELECTOR);
     if (alertList) {
       const newAlert = document.createElement('div');
       newAlert.className = 'alert-item';
-      // Use the requested static details exactly as provided
       newAlert.innerHTML = `
         <div class="alert-header">
           <span class="alert-time"><strong> CURRENT </strong></span>
@@ -1172,14 +1167,11 @@
           </div>
         </div>
       `;
-      // Insert at the top (preserves your visuals)
       alertList.insertBefore(newAlert, alertList.firstChild);
 
-      // Contact button behavior — opens dialer to emergency number
       const contactBtn = newAlert.querySelector('.contact-police');
       if (contactBtn) {
         contactBtn.addEventListener('click', () => {
-          // change this number if you want a different target
           window.location.href = 'tel:100';
         });
       }
@@ -1187,32 +1179,27 @@
       console.warn('timestamp-trigger: alert list not found:', ALERT_LIST_SELECTOR);
     }
 
-    // 4) Update threat counter (non-destructive)
     const tc = document.querySelector(THREAT_COUNT_SELECTOR);
     if (tc) {
       const current = parseInt(tc.textContent || '0', 10);
       tc.textContent = isNaN(current) ? '1' : String(current + 1);
     }
 
-    // 5) dispatch custom event in case other parts of your UI need to react
     try {
       document.dispatchEvent(new CustomEvent('senticam:incident', { detail: { timestamp: timestampSec } }));
     } catch (e) { /* ignore */ }
   }
 
-  // attach a timeupdate listener (throttled)
   if (!watcherAttached) {
     let lastChecked = 0;
     video.addEventListener('timeupdate', () => {
       const t = video.currentTime || 0;
-      if (t - lastChecked < 0.2) return; // throttle checks
+      if (t - lastChecked < 0.2) return;
       lastChecked = t;
       if (!window.incidentTriggered && (t + TOLERANCE >= TARGET_TIMESTAMP_SECONDS)) {
-        // small delay so UI has time to update
         setTimeout(() => triggerIncidentAt(TARGET_TIMESTAMP_SECONDS), 150);
       }
     });
-    // also check on loadedmetadata / seeked in case the video is loaded past the timestamp
     video.addEventListener('loadedmetadata', () => {
       if (video.currentTime + TOLERANCE >= TARGET_TIMESTAMP_SECONDS && !window.incidentTriggered) triggerIncidentAt(TARGET_TIMESTAMP_SECONDS);
     });
@@ -1226,66 +1213,50 @@
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // Query all video cards
   document.querySelectorAll('.video-card').forEach(card => {
     const thumb = card.querySelector('.video-thumb');
     if (!thumb) return;
 
-    // get source from data-src or fallback to senticam_test.mp4
     const src = card.getAttribute('data-src') || 'senticam_test.mp4';
 
-    // create the thumbnail video element
     const tvid = document.createElement('video');
     tvid.className = 'thumb-video';
     tvid.src = src;
-    tvid.muted = true;           // must be muted to autoplay
-    tvid.loop = true;
+    tvid.muted = true;        
     tvid.playsInline = true;
     tvid.autoplay = true;
     tvid.preload = 'metadata';
 
-    // insert at top of thumbnail
     thumb.insertBefore(tvid, thumb.firstChild);
 
-    // once it can play, mark as having a video (hide play icon)
     tvid.addEventListener('canplay', () => {
       thumb.classList.add('has-thumb-video');
-      // start playback (some browsers still require a gesture but muted autoplay usually works)
       tvid.play().catch(() => {});
     });
 
-    // hide default icon if video errors
     tvid.addEventListener('error', () => {
       thumb.classList.remove('has-thumb-video');
     });
 
-    // clicking the card will load into main #live-video
     card.addEventListener('click', (e) => {
       e.stopPropagation();
       const mainVideo = document.getElementById('live-video');
       if (!mainVideo) return;
 
-      // stop any webcam streams (uses your existing function if present)
       try { stopAllStreams(); } catch (err) {}
-
-      // If you prefer using srcObject for streams you can adapt this
       mainVideo.srcObject = null;
       mainVideo.src = src;
-      mainVideo.muted = false; // play with audio when loaded (browser may still block until gesture)
+      mainVideo.muted = false; 
       mainVideo.play().catch(() => {
-        // if playback is blocked, keep it muted and play then user can unmute with UI
         mainVideo.muted = true;
         mainVideo.play().catch(() => {});
       });
 
-      // set internal flags used by the rest of your code
       if (typeof startAnalysis === 'function') {
-        // ensure analysis restarts for newly loaded file
         try {
           startAnalysis();
         } catch (err) {}
       }
-      // reflect selected card's metadata (optional)
       const metaType = card.getAttribute('data-video');
       if (metaType === 'danger') {
         document.getElementById('threatLevel').textContent = 'HIGH';
@@ -1300,4 +1271,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
+
+
 
