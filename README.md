@@ -103,7 +103,14 @@ Traditional surveillance systems are reactive. They record events after they hap
 SentiCam changes that model. It detects threats in real time, reduces response delays, and gives security teams immediate, actionable awareness.
 
 ---
+### Backend Prerequisites
+You must have Python 3.x installed along with the essential computer vision libraries:
+pip install flask opencv-python numpy
 
+### Starting the Target Server
+Run the Flask server:
+python app.py
+The server will initialize its background analysis thread and host the core API at http://localhost:5000.
 ## Try It Out:
 
 🔗 https://krithika-r2007.github.io/senticam/
