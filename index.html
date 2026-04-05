@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SentiCam - Intelligent Threat Detection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- TensorFlow.js for AI Object Detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="alert-banner" id="alertBanner">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div>
+            <h3>DANGER DETECTED!</h3>
+            <p id="bannerMessage">Screaming and aggressive behavior identified</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-camera-viewfinder logo-icon"></i>
+                <h1>SentiCam <span style="font-size: 0.8rem; vertical-align: middle; opacity: 0.7;">AI CORE</span></h1>
+            </div>
+            <div class="status-bar">
+                <div class="status-indicator"></div>
+                <span>AI Monitoring Active - <span id="threatCount">0</span> Threats Detected</span>
+            </div>
+        </header>
+
+        <div class="dashboard-cards">
+            <div class="dashboard-card">
+                <i class="fas fa-video card-icon"></i>
+                <div class="card-value" id="totalCameras">5</div>
+                <div class="card-label">Active Cameras</div>
+            </div>
+            <div class="dashboard-card border-glow">
+                <i class="fas fa-microchip card-icon"></i>
+                <div class="card-value" id="aiStatus">LOAD...</div>
+                <div class="card-label">AI Engine Status</div>
+            </div>
+            <div class="dashboard-card">
+                <i class="fas fa-bell card-icon"></i>
+                <div class="card-value" id="todayAlerts">0</div>
+                <div class="card-label">Today's Alerts</div>
+            </div>
+            <div class="dashboard-card">
+                <i class="fas fa-chart-line card-icon"></i>
+                <div class="card-value">98.2%</div>
+                <div class="card-label">Detection Confidence</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="video-section">
+                <h2 class="section-title"><i class="fas fa-broadcast-tower"></i> Live Intelligence Feed</h2>
+
+                <div class="video-source-select">
+                    <label for="videoSource">Source Input:</label>
+                    <select id="videoSource">
+                        <option value="simulation">Simulation Mode</option>
+                        <option value="webcam">Webcam (Live AI)</option>
+                        <option value="file">Local File Analysis</option>
+                    </select>
+                </div>
+
+                <div class="video-container" id="videoWrapper">
+                    <video id="live-video" autoplay muted playsinline>
+                        Your browser does not support video.
+                    </video>
+                    <!-- AI Bounding Box Canvas -->
+                    <canvas id="ai-canvas"></canvas>
+
+                    <div class="video-overlay">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div>
+                                <h3>SECURE FEED // NODE-047</h3>
+                                <p id="locationText">TAMBARAM DISTRICT CENTER</p>
+                            </div>
+                            <div class="recording-tag"><i class="fas fa-circle"></i> REC</div>
+                        </div>
+                    </div>
+
+                    <div class="ai-analysis-overlay">
+                        <div class="ai-header">
+                            <i class="fas fa-brain fa-pulse"></i>
+                            <span>Neural Scan Active</span>
+                        </div>
+                        <div class="ai-details">
+                            <div class="scan-line"></div>
+                            <div id="analysis-status">CALIBRATING SENSORS...</div>
+                            <div id="ai-objects">OBJECTS: 0 | TRACKING: ACTIVE</div>
+                            <div class="acoustic-visualizer" id="acoustic-wave">
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="video-controls">
+                    <button class="btn" id="playBtn"><i class="fas fa-play"></i> START</button>
+                    <button class="btn" id="pauseBtn"><i class="fas fa-pause"></i> PAUSE</button>
+                    <button class="btn" id="muteBtn"><i class="fas fa-volume-mute"></i> AUDIO SCAN</button>
+                    <button class="btn" id="fullscreenBtn"><i class="fas fa-expand-arrows-alt"></i> FULLSCREEN</button>
+                    <input type="file" id="fileInput" accept="video/*" style="display: none;">
+                    <button class="btn active-btn" id="aiToggleBtn"><i class="fas fa-eye"></i> AI VISION: ON</button>
+                    <button class="btn" id="settingsBtn"><i class="fas fa-microchip"></i> ENGINE CFG</button>
+                </div>
+
+                <div class="analysis-section">
+                    <div class="analysis-box highlight-threat">
+                        <div class="analysis-title">THREAT LEVEL</div>
+                        <div class="analysis-value" id="threatLevel">NOMINAL</div>
+                    </div>
+                    <div class="analysis-box">
+                        <div class="analysis-title">ENGINE CONFIDENCE</div>
+                        <div class="analysis-value" id="confidenceLevel">-- %</div>
+                    </div>
+                    <div class="analysis-box">
+                        <div class="analysis-title">CORE LOGIC</div>
+                        <div class="analysis-value" id="detectionType" style="font-size: 1.2rem;">BEHAVIORAL</div>
+                    </div>
+                    <div class="analysis-box">
+                        <div class="analysis-title">SYSTEM LATENCY</div>
+                        <div class="analysis-value" id="responseTime">-- ms</div>
+                    </div>
+                </div>
+
+                <div class="settings-panel" id="settingsPanel" style="display: none;">
+                    <h3 class="settings-title"><i class="fas fa-sliders"></i> Engine Configuration</h3>
+                    <div class="settings-grid">
+                        <div class="setting-item">
+                            <label for="sensitivity">Vision Sensitivity</label>
+                            <select id="sensitivity">
+                                <option value="low">Low (Conservative)</option>
+                                <option value="medium" selected>Standard (Balanced)</option>
+                                <option value="high">High (High Alert)</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label for="audioDetection">Acoustic Analysis</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="audioDetection" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label for="autoRecording">Auto-Incident Export</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="autoRecording" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label for="boundingBoxes">Real-time Bounding Boxes</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="boundingBoxes" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alerts-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-list-ul"></i> AI Security Log</h2>
+                    <span class="badge" id="logCount">0 ENTRIES</span>
+                </div>
+
+                <div class="alert-list" id="alertList">
+                    <!-- Dynamic Log Entries -->
+                    <div class="system-msg">Initializing Secure Protocol 8.4...</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title"><i class="fas fa-folder-open"></i> Evidence Archive</h2>
+        <div class="video-list">
+            <div class="video-card danger-card" data-video="danger" data-src="danger1.mp4">
+                <div class="video-thumb">
+                    <i class="fas fa-play-circle"></i>
+                    <div class="threat-tag">CRITICAL</div>
+                </div>
+                <div class="video-info">
+                    <h3 class="video-title">Armed Assault - Bank</h3>
+                    <p class="video-desc">GANDHI NAGAR • 30.09.2025</p>
+                </div>
+            </div>
+
+            <div class="video-card" data-video="safe" data-src="safe1.mp4">
+                <div class="video-thumb">
+                    <i class="fas fa-play-circle"></i>
+                    <div class="safe-tag">SECURE</div>
+                </div>
+                <div class="video-info">
+                    <h3 class="video-title">Public Park Monitoring</h3>
+                    <p class="video-desc">CENTRAL ZONE • 11:15 AM</p>
+                </div>
+            </div>
+
+            <div class="video-card danger-card" data-video="danger" data-src="danger2.mp4">
+                <div class="video-thumb">
+                    <i class="fas fa-play-circle"></i>
+                    <div class="threat-tag">WARNING</div>
+                </div>
+                <div class="video-info">
+                    <h3 class="video-title">Unauthorized Intrusion</h3>
+                    <p class="video-desc">SECTOR 7B • 10:03 AM</p>
+                </div>
+            </div>
+
+            <div class="video-card" data-video="safe" data-src="senticam_test.mp4">
+                <div class="video-thumb">
+                    <i class="fas fa-play-circle"></i>
+                    <div class="safe-tag">SECURE</div>
+                </div>
+                <div class="video-info">
+                    <h3 class="video-title">Main Entrance Feed</h3>
+                    <p class="video-desc">CONTINUOUS LOG • 08:45 AM</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-camera-viewfinder"></i> SENTICAM PREMIER
+                </div>
+                <p>Advanced AI Surveillance System | Enterprise Alpha v4.2</p>
+                <p>&copy; 2026 SentiCam Dynamics Group. For Authorized Personnel Only.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
