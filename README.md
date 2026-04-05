@@ -1,10 +1,109 @@
 # senticam
 
-The prerequisites for the backend (e.g., you need to run pip install flask opencv-python numpy).
-How to start the exact server (python app.py).
-The local URL address the backend runs on (http://localhost:5000).
-The major API endpoints (/api/status, /api/alerts, /api/analysis) someone can call if they want to build against your backend directly.
+# SentiCam: AI-Powered Physical Cybersecurity
 
+SentiCam transforms traditional CCTV systems into an intelligent, real-time threat detection platform. Instead of passively recording footage, it actively analyzes live video streams to detect and respond to security incidents as they occur.
 
+By reducing detection time from minutes to under **2 seconds**, SentiCam enables security teams to act before situations escalate, effectively bridging the gap between physical security and cybersecurity.
 
-SentiCam is a physical cybersecurity tool that transforms passive CCTV cameras into an active, AI-powered threat detection system. It continuously analyzes live video feeds to identify real-world security threats — including unauthorized access, weapons, fighting, abandoned objects, and loitering — and triggers instant alerts to security operations centers (SOCs) before incidents escalate. Unlike traditional surveillance that only records evidence, SentiCam acts as a force multiplier for security teams, reducing detection time from minutes to under 2 seconds. Each alert delivers a complete threat package: incident type, camera location, timestamp, snapshot, and a video clip. The system integrates with existing camera infrastructure, scales from a single facility to an entire city, and includes privacy masking to comply with data protection laws. SentiCam bridges the gap between physical security and cybersecurity, protecting people, assets, and infrastructure in real time.
+---
+
+## Overview
+
+SentiCam continuously monitors surveillance feeds and identifies critical threats such as:
+
+* Weapons detection
+* Physical altercations
+* Unauthorized access and trespassing
+* Abandoned objects
+* Loitering behavior
+* Vehicle anomalies
+
+Each detected event triggers an instant alert with a complete, actionable incident summary.
+
+---
+
+## Key Features
+
+**Real-Time Threat Detection**
+AI-powered monitoring across multiple threat categories with ultra-low latency.
+
+**Instant Alerting System**
+Alerts are delivered through dashboard, email, SMS, and SIEM or webhook integrations.
+
+**Complete Incident Package**
+Every alert includes:
+
+* Threat classification
+* Camera ID and location
+* Timestamp
+* Snapshot image
+* 10-second video clip
+
+**Centralized Dashboard**
+Monitor multiple camera feeds with clear, color-coded threat prioritization.
+
+**Incident Management**
+Automated logging with searchable metadata for fast investigation.
+
+**Evidence Export**
+Export video, snapshot, and contextual data in a single click.
+
+**Seamless Integration**
+Works with existing CCTV and IP cameras with no hardware replacement required.
+
+**Privacy Compliance**
+Face and license plate masking built in to support data protection standards.
+
+---
+
+## How It Works
+
+```id="0ow0bk"
+Motion Detection -> YOLOv8 -> Anomaly Detection -> Alert Engine
+```
+
+1. CCTV streams are ingested and processed in real time
+2. Motion detection filters irrelevant frames
+3. AI models detect threats and anomalies
+4. Alerts are generated instantly
+5. Dashboard updates live with actionable insights
+
+---
+
+## Tech Stack
+
+* Python
+* Flask
+* React.js
+* HTML5, CSS, JavaScript
+* Apache Kafka
+* PostgreSQL
+* Spring Boot
+* TensorFlow and TensorFlow.js
+* SIEM integrations
+* Web Audio API
+
+---
+
+## Use Cases
+
+* Enterprise security operations
+* Campuses and institutions
+* Industrial facilities
+* Smart city surveillance
+* Transport infrastructure
+
+---
+
+## Why SentiCam
+
+Traditional surveillance systems are reactive. They record events after they happen.
+
+SentiCam changes that model. It detects threats in real time, reduces response delays, and gives security teams immediate, actionable awareness.
+
+---
+
+## Try It Out:
+
+🔗 https://krithika-r2007.github.io/senticam/
